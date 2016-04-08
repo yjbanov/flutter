@@ -38,7 +38,7 @@ Element findElementOfExactWidgetTypeGoingUp(Element node, Type targetType) {
 
 final RegExp materialIconAssetNameColorExtractor = new RegExp(r'[^/]+/ic_.+_(white|black)_[0-9]+dp\.png');
 
-void checkIconColor(WidgetTester tester, String label, Color color) {
+void checkIconColor(ElementTreeTester tester, String label, Color color) {
   // The icon is going to be in the same merged semantics box as the text
   // regardless of how the menu item is represented, so this is a good
   // way to find the menu item. I hope.
@@ -53,7 +53,7 @@ void main() {
   stock_data.StockDataFetcher.actuallyFetchData = false;
 
   test("Test icon colors", () {
-    testWidgets((WidgetTester tester) {
+    testElementTree((ElementTreeTester tester) {
       stocks.main(); // builds the app and schedules a frame but doesn't trigger one
       tester.pump(); // see https://github.com/flutter/flutter/issues/1865
       tester.pump(); // triggers a frame

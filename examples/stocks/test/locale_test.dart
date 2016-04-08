@@ -14,15 +14,13 @@ void main() {
   test("Test changing locale", () {
     testWidgets((WidgetTester tester) {
       stocks.main();
-      tester.async.flushMicrotasks(); // see https://github.com/flutter/flutter/issues/1865
+      tester.flushMicrotasks(); // see https://github.com/flutter/flutter/issues/1865
       tester.pump();
 
-      Element tab = tester.findText('MARKET');
-      expect(tab, isNotNull);
+      expect(tester.exists(find.text('MARKET')), isTrue);
       tester.setLocale("es", "US");
       tester.pump();
-      Text text = tab.widget;
-      expect(text.data, equals("MERCADO"));
+      expect(tester.exists(find.text('MERCADO')), isTrue);
 
       // TODO(abarth): We're leaking an animation. We should track down the leak
       // and plug it rather than waiting for the animation to end here.
