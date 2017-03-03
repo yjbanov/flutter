@@ -121,19 +121,13 @@ class DriveCommand extends RunCommandBase {
 
     Cache.releaseLockEarly();
 
-    try {
-      await testRunner(<String>[testFile], observatoryUri);
-    } catch (error, stackTrace) {
-      if (error is ToolExit)
-        rethrow;
-      throwToolExit('CAUGHT EXCEPTION: $error\n$stackTrace');
-    } finally {
-      if (!argResults['keep-app-running'] && argResults['use-existing-app'] == null) {
-        printStatus('Stopping application instance.');
-        await appStopper(this);
-      } else {
-        printStatus('Leaving the application running.');
-      }
+    await testRunner(<String>[testFile], observatoryUri);
+
+    if (!argResults['keep-app-running'] && argResults['use-existing-app'] == null) {
+      printStatus('Stopping application instance.');
+      await appStopper(this);
+    } else {
+      printStatus('Leaving the application running.');
     }
   }
 
@@ -312,6 +306,9 @@ void restoreTestRunner() {
 Future<Null> _runTests(List<String> testArgs, String observatoryUri) async {
   printTrace('Running driver tests.');
 
+  if (1 != 0) {
+    throw new ArgumentError('Test error');
+  }
   PackageMap.globalPackagesPath = fs.path.normalize(fs.path.absolute(PackageMap.globalPackagesPath));
   final List<String> args = testArgs.toList()
     ..add('--packages=${PackageMap.globalPackagesPath}')
