@@ -94,15 +94,39 @@ class MultiChildLayoutParentData extends ContainerBoxParentData<RenderBox> {
 /// child list, regardless of the order in which [layoutChild] is called on
 /// them.
 abstract class MultiChildLayoutDelegate {
+  // Temporary map that associates child IDs with corresponding render object.
+  // This value is set by RenderCustomMultiChildLayoutBox at the time it lays
+  // out its children, then nulls it out. Because an instance of
+  // MultiChildLayoutDelegate can be shared between widgets this map can change
+  // from widget to widget it should not be permanently stored in this class.
   Map<Object, RenderBox> _idToChild;
+
+  // Temporary list of children that need layout. Used to assert that children
+  // are not laid out more than once. This value is only non-null during the
+  // layout phase.
   Set<RenderBox> _debugChildrenNeedingLayout;
+
+  bool _debugAssertDoingLayout(String methodName) {
+    assert(() {
+      if (_idToChild == null) {
+        throw new FlutterError(
+          '$runtimeType.$methodName was called outside the layout phase.'
+        );
+      }
+      return true;
+    }());
+    return true;
+  }
 
   /// True if a non-null LayoutChild was provided for the specified id.
   ///
   /// Call this from the [performLayout] or [getSize] methods to
   /// determine which children are available, if the child list might
   /// vary.
-  bool hasChild(Object childId) => _idToChild[childId] != null;
+  bool hasChild(Object childId) {
+    assert(_debugAssertDoingLayout('hasChild'));
+    return _idToChild[childId] != null;
+  }
 
   /// Ask the child to update its layout within the limits specified by
   /// the constraints parameter. The child's size is returned.
@@ -111,6 +135,7 @@ abstract class MultiChildLayoutDelegate {
   /// child. Every child must be laid out using this function exactly
   /// once each time the [performLayout] function is called.
   Size layoutChild(Object childId, BoxConstraints constraints) {
+    assert(_debugAssertDoingLayout('layoutChild'));
     final RenderBox child = _idToChild[childId];
     assert(() {
       if (child == null) {
@@ -149,6 +174,7 @@ abstract class MultiChildLayoutDelegate {
   /// remain unchanged. Children initially have their position set to
   /// (0,0), i.e. the top left of the [RenderCustomMultiChildLayoutBox].
   void positionChild(Object childId, Offset offset) {
+    assert(_debugAssertDoingLayout('positionChild'));
     final RenderBox child = _idToChild[childId];
     assert(() {
       if (child == null) {
@@ -166,74 +192,6 @@ abstract class MultiChildLayoutDelegate {
     }());
     final MultiChildLayoutParentData childParentData = child.parentData;
     childParentData.offset = offset;
-  }
-
-  String _debugDescribeChild(RenderBox child) {
-    final MultiChildLayoutParentData childParentData = child.parentData;
-    return '${childParentData.id}: $child';
-  }
-
-  void _callPerformLayout(Size size, RenderBox firstChild) {
-    // A particular layout delegate could be called reentrantly, e.g. if it used
-    // by both a parent and a child. So, we must restore the _idToChild map when
-    // we return.
-    final Map<Object, RenderBox> previousIdToChild = _idToChild;
-
-    Set<RenderBox> debugPreviousChildrenNeedingLayout;
-    assert(() {
-      debugPreviousChildrenNeedingLayout = _debugChildrenNeedingLayout;
-      _debugChildrenNeedingLayout = new Set<RenderBox>();
-      return true;
-    }());
-
-    try {
-      _idToChild = <Object, RenderBox>{};
-      RenderBox child = firstChild;
-      while (child != null) {
-        final MultiChildLayoutParentData childParentData = child.parentData;
-        assert(() {
-          if (childParentData.id == null) {
-            throw new FlutterError(
-              'The following child has no ID:\n'
-              '  $child\n'
-              'Every child of a RenderCustomMultiChildLayoutBox must have an ID in its parent data.'
-            );
-          }
-          return true;
-        }());
-        _idToChild[childParentData.id] = child;
-        assert(() {
-          _debugChildrenNeedingLayout.add(child);
-          return true;
-        }());
-        child = childParentData.nextSibling;
-      }
-      performLayout(size);
-      assert(() {
-        if (_debugChildrenNeedingLayout.isNotEmpty) {
-          if (_debugChildrenNeedingLayout.length > 1) {
-            throw new FlutterError(
-              'The $this custom multichild layout delegate forgot to lay out the following children:\n'
-              '  ${_debugChildrenNeedingLayout.map(_debugDescribeChild).join("\n  ")}\n'
-              'Each child must be laid out exactly once.'
-            );
-          } else {
-            throw new FlutterError(
-              'The $this custom multichild layout delegate forgot to lay out the following child:\n'
-              '  ${_debugDescribeChild(_debugChildrenNeedingLayout.single)}\n'
-              'Each child must be laid out exactly once.'
-            );
-          }
-        }
-        return true;
-      }());
-    } finally {
-      _idToChild = previousIdToChild;
-      assert(() {
-        _debugChildrenNeedingLayout = debugPreviousChildrenNeedingLayout;
-        return true;
-      }());
-    }
   }
 
   /// Override this method to return the size of this object given the
@@ -268,6 +226,9 @@ abstract class MultiChildLayoutDelegate {
   /// By default, returns the [runtimeType] of the class.
   @override
   String toString() => '$runtimeType';
+
+  /// Returns children in semantic traversal order.
+  List<Object> get childIdsInTraversalOrder => null;
 }
 
 /// Defers the layout of multiple children to a delegate.
@@ -279,6 +240,14 @@ abstract class MultiChildLayoutDelegate {
 class RenderCustomMultiChildLayoutBox extends RenderBox
   with ContainerRenderObjectMixin<RenderBox, MultiChildLayoutParentData>,
        RenderBoxContainerDefaultsMixin<RenderBox, MultiChildLayoutParentData> {
+  // TODO(yjbanov): clear the map when the render object is detached.
+  final Map<Object, RenderBox> _idToChild = <Object, RenderBox>{};
+
+  @override
+  void dropChild(RenderObject child) {
+    super.dropChild(child);
+  }
+
   /// Creates a render object that customizes the layout of multiple children.
   ///
   /// The [delegate] argument must not be null.
@@ -352,7 +321,69 @@ class RenderCustomMultiChildLayoutBox extends RenderBox
   @override
   void performLayout() {
     size = _getSize(constraints);
-    delegate._callPerformLayout(size, firstChild);
+
+    Set<RenderBox> previousChildrenNeedingLayout;
+    assert(() {
+      previousChildrenNeedingLayout = delegate._debugChildrenNeedingLayout;
+      delegate._debugChildrenNeedingLayout = new Set<RenderBox>();
+      return true;
+    }());
+
+    final Map<Object, RenderBox> previousIdToChild = delegate._idToChild;
+    try {
+      _idToChild.clear();
+      delegate._idToChild = _idToChild;
+      RenderBox child = firstChild;
+      while (child != null) {
+        final MultiChildLayoutParentData childParentData = child.parentData;
+        assert(() {
+          if (childParentData.id == null) {
+            throw new FlutterError(
+                'The following child has no ID:\n'
+                    '  $child\n'
+                    'Every child of a RenderCustomMultiChildLayoutBox must have an ID in its parent data.'
+            );
+          }
+          return true;
+        }());
+        _idToChild[childParentData.id] = child;
+        assert(() {
+          delegate._debugChildrenNeedingLayout.add(child);
+          return true;
+        }());
+        child = childParentData.nextSibling;
+      }
+      delegate.performLayout(size);
+      assert(() {
+        if (delegate._debugChildrenNeedingLayout.isNotEmpty) {
+          if (delegate._debugChildrenNeedingLayout.length > 1) {
+            throw new FlutterError(
+                'The $this custom multichild layout delegate forgot to lay out the following children:\n'
+                    '  ${delegate._debugChildrenNeedingLayout.map(_debugDescribeChild).join("\n  ")}\n'
+                    'Each child must be laid out exactly once.'
+            );
+          } else {
+            throw new FlutterError(
+                'The $this custom multichild layout delegate forgot to lay out the following child:\n'
+                    '  ${_debugDescribeChild(delegate._debugChildrenNeedingLayout.single)}\n'
+                    'Each child must be laid out exactly once.'
+            );
+          }
+        }
+        return true;
+      }());
+    } finally {
+      delegate._idToChild = previousIdToChild;
+      assert(() {
+        delegate._debugChildrenNeedingLayout = previousChildrenNeedingLayout;
+        return true;
+      }());
+    }
+  }
+
+  String _debugDescribeChild(RenderBox child) {
+    final MultiChildLayoutParentData childParentData = child.parentData;
+    return '${childParentData.id}: $child';
   }
 
   @override
@@ -364,4 +395,38 @@ class RenderCustomMultiChildLayoutBox extends RenderBox
   bool hitTestChildren(HitTestResult result, { Offset position }) {
     return defaultHitTestChildren(result, position: position);
   }
+
+//  @override
+//  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+//    List<Object> traversalIds;
+//    bool useDefaultTraversal = false;
+//
+//    if (delegate != null) {
+//      traversalIds = delegate.childIdsInTraversalOrder;
+//    }
+//
+//    if (traversalIds == null) {
+//      useDefaultTraversal = true;
+//    }
+//
+//    if (useDefaultTraversal) {
+//      final List<RenderObject> children = <RenderObject>[];
+//      super.visitChildrenForSemantics(children.add);
+//      traverseChildrenGeometrically<RenderObject>(this, children).forEach(visitor);
+//      return;
+//    }
+//
+//    for (Object id in traversalIds) {
+//      final RenderBox child = _idToChild[id];
+//
+//      // A child may be null because not all the children may be rendered. This
+//      // simplifies the implementation of `childIdsInTraversalOrder`. It is
+//      // common to use an enum as the ID of `LayoutId`. If the enum values are
+//      // provided in traversal order, then the implementation of
+//      // `childIdsInTraversalOrder` is simply `MyEnum.value`.
+//      if (child != null) {
+//        visitor(child);
+//      }
+//    }
+//  }
 }

@@ -85,6 +85,12 @@ class NavigationToolbar extends StatelessWidget {
   }
 }
 
+// Identifies child widgets in the layout.
+//
+// The values are specified in traversal order. When updating this list, make
+// sure that the new values are sorted such that their traversal order makes
+// sense to the end user. For example, it would be counter-intuitive if the
+// middle slot was last in the list.
 enum _ToolbarSlot {
   leading,
   middle,
@@ -109,6 +115,9 @@ class _ToolbarLayout extends MultiChildLayoutDelegate {
   final double middleSpacing;
 
   final TextDirection textDirection;
+
+  @override
+  List<Object> get childIdsInTraversalOrder => _ToolbarSlot.values;
 
   @override
   void performLayout(Size size) {

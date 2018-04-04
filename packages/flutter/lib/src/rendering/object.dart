@@ -3315,3 +3315,61 @@ class _SemanticsGeometry {
     return _rect.isEmpty;
   }
 }
+
+/// Determines the position of a [RenderObject] relative to its siblings in the
+/// semantics traversal order using its geometric properties.
+class GeometricTraversalSortKey<T extends RenderObject> implements Comparable<GeometricTraversalSortKey<T>> {
+  GeometricTraversalSortKey({
+    @required this.object,
+    @required this.verticalOffset,
+    @required this.horizontalOffset,
+    @required this.paintOrderPosition,
+  }) : assert(object != null),
+        assert(verticalOffset != null),
+        assert(horizontalOffset != null);
+
+  /// The render object whose position this key determines.
+  final T object;
+
+  final double verticalOffset;
+
+  final double horizontalOffset;
+
+  final int paintOrderPosition;
+
+  @override
+  int compareTo(GeometricTraversalSortKey<T> other) {
+    final int majorSign = (verticalOffset - other.verticalOffset).sign.toInt();
+    if (majorSign != 0) {
+      return majorSign;
+    }
+
+    final int minorSign = (horizontalOffset - other.horizontalOffset).sign.toInt();
+    if (minorSign != 0) {
+      return minorSign;
+    }
+
+    return paintOrderPosition - other.paintOrderPosition;
+  }
+}
+
+Iterable<T> traverseChildrenGeometrically<T extends RenderObject>(RenderObject parent, List<T> children) {
+  final List<GeometricTraversalSortKey<T>> sortKeys = <GeometricTraversalSortKey<T>>[];
+  for (int position = 0; position < children.length; position++) {
+    final RenderObject child = children[position];
+
+    final Offset topLeftInViewport = MatrixUtils.transformPoint(
+        child.getTransformTo(parent), child.semanticBounds.topLeft
+    );
+
+    final GeometricTraversalSortKey<T> sortKey = new GeometricTraversalSortKey<T>(
+      object: child,
+      verticalOffset: topLeftInViewport.dy,
+      horizontalOffset: topLeftInViewport.dx,
+      paintOrderPosition: position,
+    );
+    sortKeys.add(sortKey);
+  }
+  sortKeys.sort();
+  return sortKeys.map<T>((GeometricTraversalSortKey<T> key) => key.object);
+}

@@ -559,46 +559,45 @@ void main() {
             children: <TestSemantics>[
               new TestSemantics(
                 id: 35,
-                nextNodeId: 34,
-                actions: SemanticsAction.scrollUp.index | SemanticsAction.scrollDown.index,
+                actions: <SemanticsAction>[SemanticsAction.scrollUp,
+                SemanticsAction.scrollDown],
                 rect: TestSemantics.fullScreen,
                 children: <TestSemantics>[
-                  // Item 0 is missing because its covered by the app bar.
                   new TestSemantics(
                     id: 31,
-                    previousNodeId: 32,
+                    tags: <SemanticsTag>[const SemanticsTag('RenderViewport.twoPane')],
                     // Item 1 ends at 580dp, so there would be 20dp space for Item 0.
                     rect: new Rect.fromLTRB(0.0, 0.0, 800.0, 200.0),
                     transform: new Matrix4.translation(new Vector3(0.0, 380.0, 0.0)),
-                    label: 'Item 1',
+                    label: 'Item 3',
                   ),
                   new TestSemantics(
                     id: 32,
-                    nextNodeId: 31,
-                    previousNodeId: 33,
+                    tags: <SemanticsTag>[const SemanticsTag('RenderViewport.twoPane')],
                     rect: new Rect.fromLTRB(0.0, 0.0, 800.0, 200.0),
                     transform: new Matrix4.translation(new Vector3(0.0, 180.0, 0.0)),
                     label: 'Item 2',
                   ),
                   new TestSemantics(
                     id: 33,
-                    nextNodeId: 32,
+                    tags: <SemanticsTag>[const SemanticsTag('RenderViewport.twoPane')],
                     rect: new Rect.fromLTRB(0.0, 0.0, 800.0, 200.0),
                     transform: new Matrix4.translation(new Vector3(0.0, -20.0, 0.0)),
-                    label: 'Item 3',
+                    label: 'Item 1',
                   ),
                 ],
               ),
               new TestSemantics(
                 id: 34,
-                previousNodeId: 35,
                 rect: new Rect.fromLTRB(0.0, 0.0, 120.0, 20.0),
                 transform: new Matrix4.translation(new Vector3(0.0, 544.0, 0.0)),
-                tags: <SemanticsTag>[RenderViewport.excludeFromScrolling],
-                label: 'AppBar'
+                tags: <SemanticsTag>[const SemanticsTag('RenderViewport.excludeFromScrolling'),
+                const SemanticsTag('RenderViewport.twoPane')],
+                label: 'AppBar',
+                textDirection: TextDirection.ltr,
               ),
             ],
-          )
+          ),
         ],
       ),
       ignoreTransform: true,

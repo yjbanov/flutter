@@ -328,6 +328,53 @@ abstract class RenderSliverMultiBoxAdaptor extends RenderSliver
     }
   }
 
+//  @override
+//  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+//    final List<GeometricTraversalSortKey> sortKeys = <GeometricTraversalSortKey>[];
+//    int positionCounter = 0;
+//    super.visitChildrenForSemantics((RenderObject child) {
+//      final int position = positionCounter++;
+//      final Offset bottomRightInViewport = MatrixUtils.transformPoint(
+//          child.getTransformTo(parent), child.semanticBounds.bottomRight
+//      );
+//      final Offset topLeftInViewport = MatrixUtils.transformPoint(
+//          child.getTransformTo(parent), child.semanticBounds.topLeft
+//      );
+//
+//      final GeometricTraversalSortKey sortKey = new GeometricTraversalSortKey(
+//        object: child,
+//        verticalOffset: topLeftInViewport.dy,
+//        horizontalOffset: topLeftInViewport.dx,
+//        paintOrderPosition: position,
+//      );
+//
+//      switch (constraints.normalizedGrowthDirection) {
+//        case GrowthDirection.forward:
+//          // The sliver is overlapped at the leading edge; check if trailing edge is visible.
+//          final double endOverlap = constraints.overlap;
+//          if ((constraints.axis == Axis.vertical && bottomRightInViewport.dy > endOverlap) ||
+//              (constraints.axis == Axis.horizontal && bottomRightInViewport.dx > endOverlap)) {
+//            sortKeys.add(sortKey);
+//          }
+//          break;
+//        case GrowthDirection.reverse:
+//          // The sliver is overlapped at the trailing edge; check if leading edge is visible.
+//          final double startOverlap = constraints.remainingPaintExtent - constraints.overlap;
+//          if ((constraints.axis == Axis.vertical && topLeftInViewport.dy < startOverlap) ||
+//              (constraints.axis == Axis.horizontal && topLeftInViewport.dx < startOverlap)) {
+//            sortKeys.add(sortKey);
+//          }
+//          break;
+//      }
+//    });
+//
+//    sortKeys.sort();
+//
+//    for (GeometricTraversalSortKey key in sortKeys) {
+//      visitor(key.object);
+//    }
+//  }
+
   /// Called during layout to create and add the child with the given index and
   /// scroll offset.
   ///

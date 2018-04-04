@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui' show Offset, Rect, SemanticsAction, SemanticsFlag,
@@ -1131,12 +1132,6 @@ class SemanticsNode extends AbstractNode with DiagnosticableTreeMixin {
   /// null, it means that no semantics update has been built yet.
   int get nextNodeId => _nextNodeId;
   int _nextNodeId;
-  void _updateNextNodeId(int value) {
-    if (value == _nextNodeId)
-      return;
-    _nextNodeId = value;
-    _markDirty();
-  }
 
   /// The ID of the previous node in the traversal order before this node.
   ///
@@ -1150,12 +1145,6 @@ class SemanticsNode extends AbstractNode with DiagnosticableTreeMixin {
   /// null, it means that no semantics update has been built yet.
   int get previousNodeId => _previousNodeId;
   int _previousNodeId;
-  void _updatePreviousNodeId(int value) {
-    if (value == _previousNodeId)
-      return;
-    _previousNodeId = value;
-    _markDirty();
-  }
 
   /// The currently selected text (or the position of the cursor) within [value]
   /// if this node represents a text field.
@@ -1342,10 +1331,11 @@ class SemanticsNode extends AbstractNode with DiagnosticableTreeMixin {
     if (!hasChildren || mergeAllDescendantsIntoThisNode) {
       children = _kEmptyChildList;
     } else {
-      final int childCount = _children.length;
+      final List<SemanticsNode> sortedChildren = _childrenInTraversalOrder();
+      final int childCount = sortedChildren.length;
       children = new Int32List(childCount);
       for (int i = 0; i < childCount; ++i) {
-        children[i] = _children[i].id;
+        children[i] = sortedChildren[i].id;
       }
     }
     builder.updateNode(
@@ -1370,6 +1360,49 @@ class SemanticsNode extends AbstractNode with DiagnosticableTreeMixin {
       children: children,
     );
     _dirty = false;
+  }
+
+  List<SemanticsNode> _childrenInTraversalOrder() {
+    final List<SemanticsNode> childrenInDefaultOrder = _childrenInDefaultOrder(_children);
+
+    // List.sort does not guarantee stable sort order. Therefore, children are
+    // first partitioned into groups that have compatible sort keys, i.e. keys
+    // in the same group can be compared to each other. These groups stay in
+    // the same place. Only children within the same group are sorted.
+    final List<_TraversalSortNode> everythingSorted = <_TraversalSortNode>[];
+    final List<_TraversalSortNode> sortNodes = <_TraversalSortNode>[];
+    for (int position = 0; position < childrenInDefaultOrder.length; position += 1) {
+      final SemanticsNode child = childrenInDefaultOrder[position];
+      final SemanticsSortKey sortKey = child.sortKey;
+      final SemanticsSortKey previousSortKey = position > 0
+          ? childrenInDefaultOrder[position - 1].sortKey
+          : null;
+      final bool isCompatibleWithPreviousSortKey = position == 0 ||
+          sortKey.runtimeType == previousSortKey.runtimeType &&
+          (sortKey == null || sortKey.name == previousSortKey.name);
+      if (!isCompatibleWithPreviousSortKey && sortNodes.isNotEmpty) {
+        // Do not sort groups with null sort keys. List.sort does not guarantee
+        // a stable sort order.
+        if (previousSortKey != null) {
+          sortNodes.sort();
+        }
+        everythingSorted.addAll(sortNodes);
+        sortNodes.clear();
+      }
+
+      sortNodes.add(new _TraversalSortNode(
+        node: child,
+        sortKey: sortKey,
+        position: position,
+      ));
+    }
+
+    sortNodes.sort();
+    everythingSorted.addAll(sortNodes);
+
+    return everythingSorted
+      .map<SemanticsNode>((_TraversalSortNode sortNode) => sortNode.node)
+      .toList();
   }
 
   /// Sends a [SemanticsEvent] associated with this [SemanticsNode].
@@ -1496,92 +1529,226 @@ class SemanticsNode extends AbstractNode with DiagnosticableTreeMixin {
   }
 }
 
+class _BoxEdge implements Comparable<_BoxEdge> {
+  _BoxEdge({
+    @required this.isStart,
+    @required this.offset,
+    @required this.node,
+  }) : assert(isStart != null),
+       assert(offset != null),
+       assert(node != null);
+
+  final bool isStart;
+  final double offset;
+  final SemanticsNode node;
+
+  @override
+  int compareTo(_BoxEdge other) {
+    return (offset - other.offset).sign.toInt();
+  }
+
+  @override
+  String toString() => '>>> _BoxEdge(node: ${node.label} (${node.id}), start: $isStart, offset: $offset)';
+}
+
+class _SemanticsSortGroup extends Comparable<_SemanticsSortGroup> {
+  _SemanticsSortGroup({
+    @required this.startOffset,
+  }) : assert(startOffset != null);
+
+  final double startOffset;
+  final List<SemanticsNode> nodes = <SemanticsNode>[];
+
+  void add(SemanticsNode node) {
+    nodes.add(node);
+  }
+
+  @override
+  int compareTo(_SemanticsSortGroup other) {
+    return (startOffset - other.startOffset).sign.toInt();
+  }
+
+  List<SemanticsNode> sortedWithinVerticalGroup() {
+    final List<_BoxEdge> edges = <_BoxEdge>[];
+    for (SemanticsNode child in nodes) {
+      edges.add(new _BoxEdge(
+        isStart: true,
+        offset: _pointInParentCoordinates(child, child.rect.topLeft).dx,
+        node: child,
+      ));
+      edges.add(new _BoxEdge(
+        isStart: false,
+        offset: _pointInParentCoordinates(child, child.rect.bottomRight).dx,
+        node: child,
+      ));
+    }
+    edges.sort();
+
+    final List<_SemanticsSortGroup> horizontalGroups = <_SemanticsSortGroup>[];
+    _SemanticsSortGroup group;
+    int depth = 0;
+    for (_BoxEdge edge in edges) {
+      if (edge.isStart) {
+        depth += 1;
+        group ??= new _SemanticsSortGroup(
+          startOffset: edge.offset,
+        );
+        group.add(edge.node);
+      } else {
+        depth -= 1;
+      }
+      if (depth == 0) {
+        horizontalGroups.add(group);
+        group = null;
+      }
+    }
+    horizontalGroups.sort();
+
+    final List<SemanticsNode> result = <SemanticsNode>[];
+    for (_SemanticsSortGroup group in horizontalGroups) {
+      final List<SemanticsNode> sortedKnotNodes = group.sortedWithinKnot();
+      result.addAll(sortedKnotNodes);
+    }
+    return result;
+  }
+
+  // Sorts [nodes] where nodes intersect both vertically and horizontally.
+  List<SemanticsNode> sortedWithinKnot() {
+    if (nodes.length <= 1) {
+      return nodes;
+    }
+    final Map<int, SemanticsNode> nodeMap = <int, SemanticsNode>{};
+    final Map<int, int> edges = <int, int>{};
+    for (SemanticsNode node in nodes) {
+      nodeMap[node.id] = node;
+      final Offset center = _pointInParentCoordinates(node, node.rect.center);
+      for (SemanticsNode nextNode in nodes) {
+        if (identical(node, nextNode)) {
+          // Skip self.
+          continue;
+        }
+        final Offset nextCenter = _pointInParentCoordinates(nextNode, nextNode.rect.center);
+        final Offset centerDelta = nextCenter - center;
+        final double direction = centerDelta.direction;
+        if (-math.pi / 4 < direction && direction < 3 * math.pi / 4 &&
+            edges[nextNode.id] != node.id) {
+          edges[node.id] = nextNode.id;
+        }
+      }
+    }
+
+    final List<int> sortedIds = <int>[];
+    final Set<int> visitedIds = new Set<int>();
+    final List<SemanticsNode> startNodes = nodes.toList()..sort((SemanticsNode a, SemanticsNode b) {
+      final Offset aTopLeft = _pointInParentCoordinates(a, a.rect.topLeft);
+      final Offset bTopLeft = _pointInParentCoordinates(b, b.rect.topLeft);
+      final int verticalDiff = aTopLeft.dy.compareTo(bTopLeft.dy);
+      if (verticalDiff != 0) {
+        return -verticalDiff;
+      }
+      return -aTopLeft.dx.compareTo(bTopLeft.dx);
+    });
+
+    void search(int id) {
+      if (visitedIds.contains(id)) {
+        return;
+      }
+      visitedIds.add(id);
+      if (edges.containsKey(id)) {
+        search(edges[id]);
+      }
+      sortedIds.add(id);
+    }
+
+    startNodes.map((SemanticsNode node) => node.id).forEach(search);
+    final List<SemanticsNode> result = sortedIds.map<SemanticsNode>((int id) => nodeMap[id]).toList().reversed.toList();
+    return result;
+  }
+}
+
+Offset _pointInParentCoordinates(SemanticsNode node, Offset point) {
+  if (node.transform == null) {
+    return point;
+  }
+  final Vector3 vector = new Vector3(point.dx, point.dy, 0.0);
+  node.transform.transform3(vector);
+  return new Offset(vector.x, vector.y);
+}
+
+List<SemanticsNode> _childrenInDefaultOrder(List<SemanticsNode> children) {
+  final List<_BoxEdge> edges = <_BoxEdge>[];
+  for (SemanticsNode child in children) {
+    edges.add(new _BoxEdge(
+      isStart: true,
+      offset: _pointInParentCoordinates(child, child.rect.topLeft).dy,
+      node: child,
+    ));
+    edges.add(new _BoxEdge(
+      isStart: false,
+      offset: _pointInParentCoordinates(child, child.rect.bottomRight).dy,
+      node: child,
+    ));
+  }
+  edges.sort();
+
+  final List<_SemanticsSortGroup> verticalGroups = <_SemanticsSortGroup>[];
+  _SemanticsSortGroup group;
+  int depth = 0;
+  for (_BoxEdge edge in edges) {
+    if (edge.isStart) {
+      depth += 1;
+      group ??= new _SemanticsSortGroup(
+        startOffset: edge.offset,
+      );
+      group.add(edge.node);
+    } else {
+      depth -= 1;
+    }
+    if (depth == 0) {
+      verticalGroups.add(group);
+      group = null;
+    }
+  }
+  verticalGroups.sort();
+
+  final List<SemanticsNode> result = <SemanticsNode>[];
+  for (_SemanticsSortGroup group in verticalGroups) {
+    final List<SemanticsNode> sortedGroupNodes = group.sortedWithinVerticalGroup();
+    result.addAll(sortedGroupNodes);
+  }
+  return result;
+}
+
 /// The implementation of [Comparable] that implements the ordering of
 /// [SemanticsNode]s in the accessibility traversal.
 ///
 /// [SemanticsNode]s are sorted prior to sending them to the engine side.
 ///
-/// This implementation considers a [node]'s [sortKey], it's parent's text
-/// direction ([containerTextDirection]), and its geometric position relative to
-/// its siblings ([globalStartCorner]).
-///
-/// A null value is allowed for [containerTextDirection], because in that case
-/// we want to fall back to ordering by child insertion order for nodes that are
-/// equal after sorting from top to bottom.
+/// This implementation considers a [node]'s [sortKey] and its position within
+/// the list of its siblings. [sortKey] takes precedence over position.
 class _TraversalSortNode implements Comparable<_TraversalSortNode> {
-  _TraversalSortNode({@required this.node, this.containerTextDirection, this.sortKey, Matrix4 transform})
+  _TraversalSortNode({@required this.node, this.sortKey, @required this.position})
     : assert(node != null),
-      // When containerTextDirection is null, this is set to topLeft, but the x
-      // coordinate is also ignored when doing the comparison in that case, so
-      // this isn't actually expressing a directionality opinion.
-      globalStartCorner = _transformPoint(
-        containerTextDirection == TextDirection.rtl ? node.rect.topRight : node.rect.topLeft,
-        transform,
-      );
+      assert(position != null);
 
   /// The node whose position this sort node determines.
   final SemanticsNode node;
 
-  /// The effective text direction for this node is the directionality that
-  /// its container has.
-  final TextDirection containerTextDirection;
-
   /// Determines the position of this node among its siblings.
   ///
   /// Sort keys take precedence over other attributes, such as
-  /// [globalStartCorner].
+  /// [position].
   final SemanticsSortKey sortKey;
 
-  /// The starting corner for the rectangle on this semantics node in
-  /// global coordinates.
-  ///
-  /// When the container has the directionality [TextDirection.ltr], this is the
-  /// upper left corner.  When the container has the directionality
-  /// [TextDirection.rtl], this is the upper right corner. When the container
-  /// has no directionality, this is set, but the x coordinate is ignored.
-  final Offset globalStartCorner;
-
-  static Offset _transformPoint(Offset point, Matrix4 matrix) {
-    final Vector3 result = matrix.transform3(new Vector3(point.dx, point.dy, 0.0));
-    return new Offset(result.x, result.y);
-  }
-
-  /// Compares the node's start corner with that of `other`.
-  ///
-  /// Sorts top to bottom, and then start to end.
-  ///
-  /// This takes into account the container text direction, since the
-  /// coordinate system has zero on the left, and we need to compare
-  /// differently for different text directions.
-  ///
-  /// If no text direction is available (i.e. [containerTextDirection] is
-  /// null), then we sort by vertical position first, and then by child
-  /// insertion order.
-  int _compareGeometry(_TraversalSortNode other) {
-    final int verticalDiff = globalStartCorner.dy.compareTo(other.globalStartCorner.dy);
-    if (verticalDiff != 0) {
-      return verticalDiff;
-    }
-    switch (containerTextDirection) {
-      case TextDirection.rtl:
-        return other.globalStartCorner.dx.compareTo(globalStartCorner.dx);
-      case TextDirection.ltr:
-        return globalStartCorner.dx.compareTo(other.globalStartCorner.dx);
-    }
-    // In case containerTextDirection is null we fall back to child insertion order.
-    return 0;
-  }
+  /// Position within the list of siblings.
+  final int position;
 
   @override
   int compareTo(_TraversalSortNode other) {
     if (sortKey == null || other?.sortKey == null) {
-      return _compareGeometry(other);
+      return position - other.position;
     }
-    final int comparison = sortKey.compareTo(other.sortKey);
-    if (comparison != 0) {
-      return comparison;
-    }
-    return _compareGeometry(other);
+    return sortKey.compareTo(other.sortKey);
   }
 }
 
@@ -1609,58 +1776,10 @@ class SemanticsOwner extends ChangeNotifier {
     super.dispose();
   }
 
-  // Updates the nextNodeId and previousNodeId IDs on the semantics nodes. These
-  // IDs are used on the platform side to order the nodes for traversal by the
-  // accessibility services. If the nextNodeId or previousNodeId for a node
-  // changes, the node will be marked as dirty.
-  void _updateTraversalOrder() {
-    void updateRecursively(SemanticsNode parent, Matrix4 parentGlobalTransform) {
-      assert(parentGlobalTransform != null);
-
-      final List<_TraversalSortNode> children = <_TraversalSortNode>[];
-
-      parent.visitChildren((SemanticsNode child) {
-        final Matrix4 childGlobalTransform = child.transform != null
-            ? parentGlobalTransform.multiplied(child.transform)
-            : parentGlobalTransform;
-
-        children.add(new _TraversalSortNode(
-          node: child,
-          containerTextDirection: parent.textDirection,
-          sortKey: child.sortKey,
-          transform: childGlobalTransform,
-        ));
-
-        updateRecursively(child, childGlobalTransform);
-        return true;
-      });
-
-      if (children.isEmpty) {
-        // We need at least one node for the following code to work.
-        return;
-      }
-
-      children.sort();
-      _TraversalSortNode node = children.removeLast();
-      node.node._updateNextNodeId(-1);
-      while (children.isNotEmpty) {
-        final _TraversalSortNode previousNode = children.removeLast();
-        node.node._updatePreviousNodeId(previousNode.node.id);
-        previousNode.node._updateNextNodeId(node.node.id);
-        node = previousNode;
-      }
-      node.node._updatePreviousNodeId(-1);
-    }
-
-    updateRecursively(rootSemanticsNode, new Matrix4.identity());
-  }
-
   /// Update the semantics using [Window.updateSemantics].
   void sendSemanticsUpdate() {
     if (_dirtyNodes.isEmpty)
       return;
-    // Nodes that change their previousNodeId will be marked as dirty.
-    _updateTraversalOrder();
     final List<SemanticsNode> visitedNodes = <SemanticsNode>[];
     while (_dirtyNodes.isNotEmpty) {
       final List<SemanticsNode> localDirtyNodes = _dirtyNodes.where((SemanticsNode node) => !_detachedNodes.contains(node)).toList();
@@ -2695,8 +2814,8 @@ abstract class SemanticsSortKey extends Diagnosticable implements Comparable<Sem
 
   @override
   int compareTo(SemanticsSortKey other) {
-    if (other.runtimeType != runtimeType || other.name != name)
-      return 0;
+    assert(runtimeType == other.runtimeType);
+    assert(name == other.name);
     return doCompare(other);
   }
 

@@ -106,6 +106,15 @@ abstract class RenderViewportBase<ParentDataClass extends ContainerParentDataMix
     }
   }
 
+//  @override
+//  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+//    for (RenderSliver sliver in childrenInTraversalOrder) {
+//      if (sliver.geometry.paintExtent != 0 &&
+//          sliver.constraints.overlap < sliver.geometry.paintOrigin + sliver.geometry.paintExtent)
+//        visitor(sliver);
+//    }
+//  }
+
   /// The direction in which the [SliverConstraints.scrollOffset] increases.
   ///
   /// For example, if the [axisDirection] is [AxisDirection.down], a scroll
@@ -658,6 +667,11 @@ abstract class RenderViewportBase<ParentDataClass extends ContainerParentDataMix
   /// This should be the reverse order of [childrenInHitTestOrder].
   @protected
   Iterable<RenderSliver> get childrenInPaintOrder;
+
+  @protected
+  Iterable<RenderSliver> get childrenInTraversalOrder {
+    return traverseChildrenGeometrically<RenderSliver>(this, childrenInPaintOrder.toList());
+  }
 
   /// Provides an iterable that walks the children of the viewport, in the order
   /// that hit-testing should use.

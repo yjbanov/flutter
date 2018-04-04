@@ -46,13 +46,13 @@ const FloatingActionButtonAnimator _kDefaultFloatingActionButtonAnimator = Float
 typedef Path ComputeNotch(Rect host, Rect guest, Offset start, Offset end);
 
 enum _ScaffoldSlot {
-  body,
   appBar,
+  body,
+  floatingActionButton,
   bottomSheet,
   snackBar,
   persistentFooter,
   bottomNavigationBar,
-  floatingActionButton,
   drawer,
   endDrawer,
   statusBar,
@@ -348,6 +348,9 @@ class _ScaffoldLayout extends MultiChildLayoutDelegate {
   final FloatingActionButtonLocation currentFloatingActionButtonLocation;
   final double floatingActionButtonMoveAnimationProgress;
   final FloatingActionButtonAnimator floatingActionButtonMotionAnimator;
+
+  @override
+  List<Object> get childIdsInTraversalOrder => _ScaffoldSlot.values;
 
   @override
   void performLayout(Size size) {
