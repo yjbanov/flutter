@@ -494,6 +494,17 @@ class _IOSDevicePortForwarder extends DevicePortForwarder {
       device.id,
     ]);
 
+    Socket socket;
+    while (socket == null) {
+      try {
+        socket = await Socket.connect('localhost', hostPort);
+      } on SocketException {
+        print('>>>>> Port not ready yet');
+      }
+    }
+    socket.destroy();
+    print('>>>>> Connected');
+
     final ForwardedPort forwardedPort = new ForwardedPort.withContext(hostPort,
         devicePort, process);
 
