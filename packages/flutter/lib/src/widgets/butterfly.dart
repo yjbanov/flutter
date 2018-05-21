@@ -17,13 +17,12 @@ import 'package:meta/meta.dart';
 
 import 'package:flutter/rendering.dart' show
   RenderObject,
-  VoidCallback,
-  Size,
-  RenderBox,
-  RenderErrorBox,
   RenderObjectWithChildMixin,
   ContainerRenderObjectMixin,
   ContainerParentDataMixin;
+
+/// Signature of callbacks that have no arguments and return no data.
+typedef void VoidCallback();
 
 /// Log the dirty widgets that are built each frame.
 ///
@@ -539,7 +538,6 @@ abstract class Widget {
   Element createElement();
 
   /// A short, textual description of this widget.
-  @override
   String toStringShort() {
     return key == null ? '$runtimeType' : '$runtimeType-$key';
   }
@@ -1955,27 +1953,6 @@ abstract class BuildContext {
   /// render object is usually short.
   RenderObject findRenderObject();
 
-  /// The size of the [RenderBox] returned by [findRenderObject].
-  ///
-  /// This getter will only return a valid result after the layout phase is
-  /// complete. It is therefore not valid to call this from a build method.
-  /// It should only be called from paint callbacks or interaction event
-  /// handlers (e.g. gesture callbacks).
-  ///
-  /// For details on the different phases of a frame, see the discussion at
-  /// [WidgetsBinding.drawFrame].
-  ///
-  /// This getter will only return a valid result if [findRenderObject] actually
-  /// returns a [RenderBox]. If [findRenderObject] returns a render object that
-  /// is not a subtype of [RenderBox] (e.g., [RenderView]), this getter will
-  /// throw an exception in checked mode and will return null in release mode.
-  ///
-  /// Calling this getter is theoretically relatively expensive (O(N) in the
-  /// depth of the tree), but in practice is usually cheap because the tree
-  /// usually has many render objects and therefore the distance to the nearest
-  /// render object is usually short.
-  Size get size;
-
   /// Obtains the nearest widget of the given type, which must be the type of a
   /// concrete [InheritedWidget] subclass, and registers this build context with
   /// that widget such that when that widget changes (or a new widget of that
@@ -3175,46 +3152,6 @@ abstract class Element implements BuildContext {
   @override
   RenderObject findRenderObject() => renderObject;
 
-  @override
-  Size get size {
-    assert(() {
-      if (_debugLifecycleState != _ElementLifecycle.active) {
-        throw new FlutterError(
-          'Cannot get size of inactive element.\n'
-          'In order for an element to have a valid size, the element must be '
-          'active, which means it is part of the tree. Instead, this element '
-          'is in the $_debugLifecycleState state.\n'
-          'The size getter was called for the following element:\n'
-          '  $this\n'
-        );
-      }
-      if (owner._debugBuilding) {
-        throw new FlutterError(
-          'Cannot get size during build.\n'
-          'The size of this render object has not yet been determined because '
-          'the framework is still in the process of building widgets, which '
-          'means the render tree for this frame has not yet been determined. '
-          'The size getter should only be called from paint callbacks or '
-          'interaction event handlers (e.g. gesture callbacks).\n'
-          '\n'
-          'If you need some sizing information during build to decide which '
-          'widgets to build, consider using a LayoutBuilder widget, which can '
-          'tell you the layout constraints at a given location in the tree. See '
-          '<https://docs.flutter.io/flutter/widgets/LayoutBuilder-class.html> '
-          'for more details.\n'
-          '\n'
-          'The size getter was called for the following element:\n'
-          '  $this\n'
-        );
-      }
-      return true;
-    }());
-    final RenderObject renderObject = findRenderObject();
-    if (renderObject is RenderBox)
-      return renderObject.size;
-    return null;
-  }
-
   Map<Type, InheritedElement> _inheritedWidgets;
   Set<InheritedElement> _dependencies;
   bool _hadUnsatisfiedDependencies = false;
@@ -3383,7 +3320,7 @@ abstract class Element implements BuildContext {
   }
 
   /// A short, textual description of this element.
-  @override String toStringShort() {
+  String toStringShort() {
     return widget != null ? '${widget.toStringShort()}' : '[$runtimeType]';
   }
 
@@ -3563,8 +3500,9 @@ class ErrorWidget extends LeafRenderObjectWidget {
     return 'Error';
   }
 
+  // TODO(yjbanov): implement w/o RenderBox dependency.
   @override
-  RenderBox createRenderObject(BuildContext context) => new RenderErrorBox(message);
+  RenderObject createRenderObject(BuildContext context) => null;
 }
 
 /// Signature for a function that creates a widget, e.g. [StatelessWidget.build]
