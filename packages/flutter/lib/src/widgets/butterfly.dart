@@ -16,8 +16,7 @@ import 'butterfly_common.dart';
 import 'butterfly_surface.dart' show
   RenderObject,
   ContainerRenderObjectMixin,
-  ContainerParentDataMixin,
-  RenderObjectWithChildMixin;
+  ContainerParentDataMixin;
 
 /// Log the dirty widgets that are built each frame.
 ///
@@ -4548,9 +4547,13 @@ class SingleChildRenderObjectElement extends RenderObjectElement {
 
   @override
   void insertChildRenderObject(RenderObject child, dynamic slot) {
-    final RenderObjectWithChildMixin<RenderObject> renderObject = this.renderObject;
+    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
     assert(slot == null);
-    renderObject.child = child;
+    assert(renderObject.childCount <= 1);
+    if (renderObject.childCount > 0) {
+      renderObject.removeAll();
+    }
+    renderObject.insert(child);
     assert(renderObject == this.renderObject);
   }
 
@@ -4561,9 +4564,12 @@ class SingleChildRenderObjectElement extends RenderObjectElement {
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    final RenderObjectWithChildMixin<RenderObject> renderObject = this.renderObject;
-    assert(renderObject.child == child);
-    renderObject.child = null;
+    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
+    assert(renderObject.firstChild == child);
+    assert(renderObject.childCount <= 1);
+    if (renderObject.childCount > 0) {
+      renderObject.removeAll();
+    }
     assert(renderObject == this.renderObject);
   }
 }

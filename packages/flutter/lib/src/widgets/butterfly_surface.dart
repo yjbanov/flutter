@@ -223,32 +223,6 @@ abstract class RenderObject {
   void visitChildren(RenderObjectVisitor visitor) { }
 }
 
-/// Generic mixin for render objects with one child.
-///
-/// Provides a child model for a render object subclass that has a unique child.
-abstract class RenderObjectWithChildMixin<ChildType extends RenderObject> extends RenderObject {
-  // This class is intended to be used as a mixin, and should not be
-  // extended directly.
-  factory RenderObjectWithChildMixin._() => null;
-
-  ChildType _child;
-  /// The render object's unique child
-  ChildType get child => _child;
-  set child(ChildType value) {
-    if (_child != null)
-      dropChild(_child);
-    _child = value;
-    if (_child != null)
-      adoptChild(_child);
-  }
-
-  @override
-  void visitChildren(RenderObjectVisitor visitor) {
-    if (_child != null)
-      visitor(_child);
-  }
-}
-
 /// Generic mixin for render objects with a list of children.
 ///
 /// Provides a child model for a render object subclass that has a doubly-linked
