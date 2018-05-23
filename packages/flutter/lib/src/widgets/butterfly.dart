@@ -3,20 +3,14 @@
 // found in the LICENSE file.
 
 import 'dart:async' show Future;
-
 import 'dart:collection';
 import 'dart:developer';
-
-import 'dart:ui' show 
-  hashValues;
+import 'dart:ui' show hashValues;
 
 import 'package:meta/meta.dart';
 
 import 'butterfly_common.dart';
-import 'butterfly_surface.dart' show
-  RenderObject,
-  ContainerRenderObjectMixin,
-  ContainerParentDataMixin;
+import 'butterfly_surface.dart';
 
 /// Log the dirty widgets that are built each frame.
 ///
@@ -4547,14 +4541,12 @@ class SingleChildRenderObjectElement extends RenderObjectElement {
 
   @override
   void insertChildRenderObject(RenderObject child, dynamic slot) {
-    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
     assert(slot == null);
     assert(renderObject.childCount <= 1);
     if (renderObject.childCount > 0) {
       renderObject.removeAll();
     }
     renderObject.insert(child);
-    assert(renderObject == this.renderObject);
   }
 
   @override
@@ -4564,13 +4556,10 @@ class SingleChildRenderObjectElement extends RenderObjectElement {
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
-    assert(renderObject.firstChild == child);
     assert(renderObject.childCount <= 1);
     if (renderObject.childCount > 0) {
       renderObject.removeAll();
     }
-    assert(renderObject == this.renderObject);
   }
 }
 
@@ -4602,25 +4591,17 @@ class MultiChildRenderObjectElement extends RenderObjectElement {
 
   @override
   void insertChildRenderObject(RenderObject child, Element slot) {
-    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
     renderObject.insert(child, after: slot?.renderObject);
-    assert(renderObject == this.renderObject);
   }
 
   @override
   void moveChildRenderObject(RenderObject child, dynamic slot) {
-    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
-    assert(child.parent == renderObject);
     renderObject.move(child, after: slot?.renderObject);
-    assert(renderObject == this.renderObject);
   }
 
   @override
   void removeChildRenderObject(RenderObject child) {
-    final ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>> renderObject = this.renderObject;
-    assert(child.parent == renderObject);
     renderObject.remove(child);
-    assert(renderObject == this.renderObject);
   }
 
   @override
