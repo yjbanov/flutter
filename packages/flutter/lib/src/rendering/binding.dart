@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:typed_data';
-import 'dart:ui' as ui show window;
+import 'package:flutter/ui.dart' as ui show window;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';

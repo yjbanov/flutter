@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui' show Offset;
+import 'package:flutter/ui.dart' show Offset;
 
 import 'arena.dart';
 import 'binding.dart';

@@ -7,8 +7,8 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:math' as math;
-import 'dart:ui' as ui show window, Picture, SceneBuilder, PictureRecorder;
-import 'dart:ui' show Offset;
+import 'package:flutter/ui.dart' as ui show window, Picture, SceneBuilder, PictureRecorder;
+import 'package:flutter/ui.dart' show Offset;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';

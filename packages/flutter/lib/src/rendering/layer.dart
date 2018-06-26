@@ -4,8 +4,8 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ui' as ui show Image, ImageFilter, Picture, Scene, SceneBuilder;
-import 'dart:ui' show Offset;
+import 'package:flutter/ui.dart' as ui show Image, ImageFilter, Picture, Scene, SceneBuilder;
+import 'package:flutter/ui.dart' show Offset;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';

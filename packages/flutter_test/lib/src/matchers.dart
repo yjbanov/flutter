@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
+import 'package:flutter/ui.dart' as ui;
 
 import 'package:meta/meta.dart';
 import 'package:test/test.dart' hide TypeMatcher, isInstanceOf;

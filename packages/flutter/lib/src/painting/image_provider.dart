@@ -5,8 +5,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui' as ui show instantiateImageCodec, Codec;
-import 'dart:ui' show Size, Locale, TextDirection, hashValues;
+import 'package:flutter/ui.dart' as ui show instantiateImageCodec, Codec;
+import 'package:flutter/ui.dart' show Size, Locale, TextDirection, hashValues;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';

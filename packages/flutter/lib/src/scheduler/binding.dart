@@ -5,8 +5,8 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:developer';
-import 'dart:ui' as ui show window;
-import 'dart:ui' show AppLifecycleState;
+import 'package:flutter/ui.dart' as ui show window;
+import 'package:flutter/ui.dart' show AppLifecycleState;
 
 import 'package:collection/collection.dart' show PriorityQueue, HeapPriorityQueue;
 import 'package:flutter/foundation.dart';
@@ -15,7 +15,7 @@ import 'package:flutter/services.dart';
 import 'debug.dart';
 import 'priority.dart';
 
-export 'dart:ui' show AppLifecycleState, VoidCallback;
+export 'package:flutter/ui.dart' show AppLifecycleState, VoidCallback;
 
 /// Slows down animations by this factor to help in development.
 double get timeDilation => _timeDilation;

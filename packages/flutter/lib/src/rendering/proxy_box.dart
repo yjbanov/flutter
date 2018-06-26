@@ -4,7 +4,7 @@
 
 import 'dart:async';
 
-import 'dart:ui' as ui show ImageFilter, Gradient, Image;
+import 'package:flutter/ui.dart' as ui show ImageFilter, Gradient, Image;
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';

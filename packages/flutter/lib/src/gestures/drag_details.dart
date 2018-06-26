@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:ui' show Offset;
+import 'package:flutter/ui.dart' show Offset;
 
 import 'package:flutter/foundation.dart';
 

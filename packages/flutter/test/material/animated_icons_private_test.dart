@@ -10,8 +10,8 @@
 library material_animated_icons;
 
 import 'dart:math' as math show pi;
-import 'dart:ui' show lerpDouble;
-import 'dart:ui' as ui show Paint, Path, Canvas;
+import 'package:flutter/ui.dart' show lerpDouble;
+import 'package:flutter/ui.dart' as ui show Paint, Path, Canvas;
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/widgets.dart';

@@ -6,7 +6,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' show hashValues;
+import 'package:flutter/ui.dart' show hashValues;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';

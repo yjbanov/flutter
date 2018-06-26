@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:io';
-import 'dart:ui' as ui show TextBox;
+import 'package:flutter/ui.dart' as ui show TextBox;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';

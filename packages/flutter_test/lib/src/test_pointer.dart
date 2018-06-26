@@ -9,7 +9,7 @@ import 'package:flutter/gestures.dart';
 
 import 'test_async_utils.dart';
 
-export 'dart:ui' show Offset;
+export 'package:flutter/ui.dart' show Offset;
 
 /// A class for generating coherent artificial pointer events.
 ///

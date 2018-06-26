@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'dart:ui' show TextDirection;
+import 'package:flutter/ui.dart' show TextDirection;
 
-export 'dart:ui' show
+export 'package:flutter/ui.dart' show
   BlendMode,
   BlurStyle,
   Canvas,

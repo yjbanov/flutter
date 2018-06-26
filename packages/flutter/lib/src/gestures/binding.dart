@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ui' as ui show window, PointerDataPacket;
+import 'package:flutter/ui.dart' as ui show window, PointerDataPacket;
 
 import 'package:flutter/foundation.dart';
 

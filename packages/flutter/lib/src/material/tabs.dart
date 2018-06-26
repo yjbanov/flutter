@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui' show lerpDouble;
+import 'package:flutter/ui.dart' show lerpDouble;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';

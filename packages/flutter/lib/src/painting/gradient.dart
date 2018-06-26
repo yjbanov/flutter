@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:math' as math;
-import 'dart:ui' as ui show Gradient, lerpDouble;
+import 'package:flutter/ui.dart' as ui show Gradient, lerpDouble;
 
 import 'package:flutter/foundation.dart';
 

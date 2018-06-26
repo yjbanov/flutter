@@ -4,7 +4,7 @@
 
 import 'dart:developer';
 import 'dart:io' show Platform;
-import 'dart:ui' as ui show Scene, SceneBuilder, window;
+import 'package:flutter/ui.dart' as ui show Scene, SceneBuilder, window;
 
 import 'package:flutter/foundation.dart';
 import 'package:vector_math/vector_math_64.dart';

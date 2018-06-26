@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui' as ui show window;
+import 'package:flutter/ui.dart' as ui show window;
 
 import 'package:flutter/rendering.dart';
 
@@ -20,7 +20,7 @@ import 'text.dart';
 import 'title.dart';
 import 'widget_inspector.dart';
 
-export 'dart:ui' show Locale;
+export 'package:flutter/ui.dart' show Locale;
 
 /// The signature of [WidgetsApp.localeResolutionCallback].
 ///

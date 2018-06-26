@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:collection';
-import 'dart:ui' show Offset;
+import 'package:flutter/ui.dart' show Offset;
 
 import 'package:flutter/foundation.dart';
 

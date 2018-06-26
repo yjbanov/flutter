@@ -12,7 +12,7 @@ import 'package:flutter/rendering.dart';
 import 'debug.dart';
 import 'focus_manager.dart';
 
-export 'dart:ui' show hashValues, hashList;
+export 'package:flutter/ui.dart' show hashValues, hashList;
 
 export 'package:flutter/foundation.dart' show
   immutable,

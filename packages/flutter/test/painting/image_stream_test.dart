@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui';
+import 'package:flutter/ui.dart';
 
 import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;

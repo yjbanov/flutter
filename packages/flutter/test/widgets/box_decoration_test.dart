@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui' as ui show Image;
+import 'package:flutter/ui.dart' as ui show Image;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

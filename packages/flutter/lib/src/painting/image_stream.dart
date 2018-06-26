@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui' as ui show Image, Codec, FrameInfo;
-import 'dart:ui' show hashValues;
+import 'package:flutter/ui.dart' as ui show Image, Codec, FrameInfo;
+import 'package:flutter/ui.dart' show hashValues;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';

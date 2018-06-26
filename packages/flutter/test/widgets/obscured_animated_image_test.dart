@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:typed_data';
-import 'dart:ui' as ui show Image;
+import 'package:flutter/ui.dart' as ui show Image;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

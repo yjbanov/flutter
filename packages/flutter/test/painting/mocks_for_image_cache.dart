@@ -4,8 +4,8 @@
 
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui' as ui show Image;
-import 'dart:ui';
+import 'package:flutter/ui.dart' as ui show Image;
+import 'package:flutter/ui.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';

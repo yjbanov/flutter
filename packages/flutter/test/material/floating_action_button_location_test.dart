@@ -2,6 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO(yjbanov): If I don't do this, I get a "Offset is implicitly hidden"
+//                error. I do not understand why I have to do this, given that
+//                basic_types.dart already re-exports Offset.
+import 'package:flutter/ui.dart' as ui;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -262,7 +267,7 @@ class _StartTopFloatingActionButtonLocation extends FloatingActionButtonLocation
   const _StartTopFloatingActionButtonLocation();
 
   @override
-  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+  ui.Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
     double fabX;
     assert(scaffoldGeometry.textDirection != null);
     switch (scaffoldGeometry.textDirection) {
@@ -276,6 +281,6 @@ class _StartTopFloatingActionButtonLocation extends FloatingActionButtonLocation
         break;
     }
     final double fabY = scaffoldGeometry.contentTop - (scaffoldGeometry.floatingActionButtonSize.height / 2.0);
-    return new Offset(fabX, fabY);
+    return new ui.Offset(fabX, fabY);
   }
 }

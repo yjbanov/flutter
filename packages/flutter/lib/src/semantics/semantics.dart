@@ -4,8 +4,8 @@
 
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' as ui;
-import 'dart:ui' show Offset, Rect, SemanticsAction, SemanticsFlag,
+import 'package:flutter/ui.dart' as ui;
+import 'package:flutter/ui.dart' show Offset, Rect, SemanticsAction, SemanticsFlag,
        TextDirection;
 
 import 'package:flutter/foundation.dart';
@@ -15,7 +15,7 @@ import 'package:vector_math/vector_math_64.dart';
 
 import 'semantics_event.dart';
 
-export 'dart:ui' show SemanticsAction;
+export 'package:flutter/ui.dart' show SemanticsAction;
 export 'semantics_event.dart';
 
 /// Signature for a function that is called for each [SemanticsNode].

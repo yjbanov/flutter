@@ -7,7 +7,7 @@ import 'dart:collection';
 
 // COMMON SIGNATURES
 
-export 'dart:ui' show VoidCallback;
+export 'package:flutter/ui.dart' show VoidCallback;
 
 /// Signature for callbacks that report that an underlying value has changed.
 ///

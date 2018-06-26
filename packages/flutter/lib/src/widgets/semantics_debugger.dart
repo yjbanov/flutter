@@ -3,8 +3,8 @@
 // found in the LICENSE file.
 
 import 'dart:math' as math;
-import 'dart:ui' show SemanticsFlag;
-import 'dart:ui' as ui show window;
+import 'package:flutter/ui.dart' show SemanticsFlag;
+import 'package:flutter/ui.dart' as ui show window;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';

@@ -2,6 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// TODO(yjbanov): If I don't do this, I get a "Offset is implicitly hidden"
+//                error. I do not understand why I have to do this, given that
+//                basic_types.dart already re-exports Offset.
+import 'package:flutter/ui.dart' as ui;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -28,11 +33,11 @@ class TestSingleChildLayoutDelegate extends SingleChildLayoutDelegate {
   }
 
   @override
-  Offset getPositionForChild(Size size, Size childSize) {
+  ui.Offset getPositionForChild(Size size, Size childSize) {
     assert(!RenderObject.debugCheckingIntrinsics);
     sizeFromGetPositionForChild = size;
     childSizeFromGetPositionForChild = childSize;
-    return Offset.zero;
+    return ui.Offset.zero;
   }
 
   bool shouldRelayoutCalled = false;

@@ -4,7 +4,7 @@
 
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui' as ui show Codec, FrameInfo, instantiateImageCodec;
+import 'package:flutter/ui.dart' as ui show Codec, FrameInfo, instantiateImageCodec;
 
 import 'package:flutter/foundation.dart';
 

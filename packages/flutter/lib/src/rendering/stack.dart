@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:math' as math;
-import 'dart:ui' show lerpDouble, hashValues;
+import 'package:flutter/ui.dart' show lerpDouble, hashValues;
 
 import 'package:flutter/foundation.dart';
 

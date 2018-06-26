@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:ui' show Locale;
+import 'package:flutter/ui.dart' show Locale;
 
 import 'package:flutter/foundation.dart';
 
