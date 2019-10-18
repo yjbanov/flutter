@@ -438,7 +438,6 @@ Future<void> _runTests() async {
 const List<String> kWebTestDirectoryBlacklist = <String>[
   'test/cupertino',
   'test/examples',
-  'test/material',
 ];
 const List<String> kWebTestFileBlacklist = <String>[
   'test/widgets/heroes_test.dart',
@@ -452,6 +451,11 @@ const List<String> kWebTestFileBlacklist = <String>[
   'test/widgets/widget_inspector_test.dart',
   'test/widgets/draggable_test.dart',
   'test/widgets/shortcuts_test.dart',
+  'test/material/text_form_field_test.dart',
+  'test/material/banner_theme_test.dart',
+  'test/material/popup_menu_test.dart',
+  'test/material/data_table_test.dart',
+  'test/material/toggle_buttons_test.dart',
 ];
 
 Future<void> _runWebTests() async {
