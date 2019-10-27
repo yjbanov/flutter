@@ -6,6 +6,7 @@ import '../../artifacts.dart';
 import '../../asset.dart';
 import '../../base/file_system.dart';
 import '../../base/io.dart';
+import '../../base/platform.dart';
 import '../../base/process_manager.dart';
 import '../../build_info.dart';
 import '../../dart/package_map.dart';
@@ -148,6 +149,8 @@ class Dart2JSTarget extends Target {
         '-Ddart.vm.profile=true'
       else
         '-Ddart.vm.product=true',
+      if (platform.environment['FLUTTER_WEB_USE_SKIA'] == 'true')
+        '-DFLUTTER_WEB_USE_SKIA=true',
       environment.buildDir.childFile('main.dart').path,
     ]);
     if (result.exitCode != 0) {
