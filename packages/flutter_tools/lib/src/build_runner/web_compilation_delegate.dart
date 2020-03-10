@@ -138,6 +138,7 @@ class BuildDaemonCreator {
     WebTestTargetManifest testTargets,
   }) async {
     try {
+      globals.printTrace('>>> Web daemon _connectClient');
       final BuildDaemonClient client = await _connectClient(
         workingDirectory,
         release: release,
@@ -146,6 +147,7 @@ class BuildDaemonCreator {
         initializePlatform: initializePlatform,
         testTargets: testTargets,
       );
+      globals.printTrace('>>> Web daemon _connectClient connected');
       _registerBuildTargets(client, testTargets);
       return client;
     } on OptionsSkew {

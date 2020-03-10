@@ -649,6 +649,7 @@ class BrowserManager {
     bool debug = false,
     bool headless = true,
   }) async {
+    globals.printTrace('>>>>>>>>>>>>>>>>>>> Starting browser');
     final Chrome chrome =
         await globals.chromeLauncher.launch(url.toString(), headless: headless);
 
@@ -909,6 +910,8 @@ class TestGoldenComparator {
     if (result == null) {
       return 'unknown error';
     } else {
+      final File localFile = await (globals.fs.currentDirectory).childFile('image_${goldenKey}_before.png').writeAsBytes(bytes);
+      print('>>> ${localFile.path}');
       return (result['success'] as bool) ? null : ((result['message'] as String) ?? 'does not match');
     }
   }

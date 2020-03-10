@@ -177,8 +177,11 @@ final List<core.BuilderApplication> builders = <core.BuilderApplication>[
 
 /// The entry point to this build script.
 Future<void> main(List<String> args, [SendPort sendPort]) async {
+  print('>>>> in main');
   core.overrideGeneratedOutputDirectory('flutter_web');
+  print('>>>> build_runner.run before');
   final int result = await build_runner.run(args, builders);
+  print('>>>> build_runner.run after');
   sendPort?.send(result);
 }
 
