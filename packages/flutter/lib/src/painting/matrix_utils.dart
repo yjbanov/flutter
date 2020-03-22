@@ -5,7 +5,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 import 'basic_types.dart';
 
@@ -22,7 +22,7 @@ class MatrixUtils {
   /// Otherwise, returns null.
   static Offset getAsTranslation(Matrix4 transform) {
     assert(transform != null);
-    final Float64List values = transform.storage;
+    final Float32List values = transform.storage;
     // Values are stored in column-major order.
     if (values[0] == 1.0 && // col 1
         values[1] == 0.0 &&
@@ -49,7 +49,7 @@ class MatrixUtils {
   /// Otherwise, returns null.
   static double getAsScale(Matrix4 transform) {
     assert(transform != null);
-    final Float64List values = transform.storage;
+    final Float32List values = transform.storage;
     // Values are stored in column-major order.
     if (values[1] == 0.0 && // col 1 (value 0 is the scale)
         values[2] == 0.0 &&
@@ -126,7 +126,7 @@ class MatrixUtils {
   /// This function assumes the given point has a z-coordinate of 0.0. The
   /// z-coordinate of the result is ignored.
   static Offset transformPoint(Matrix4 transform, Offset point) {
-    final Float64List storage = transform.storage;
+    final Float32List storage = transform.storage;
     final double x = point.dx;
     final double y = point.dy;
 
@@ -151,12 +151,12 @@ class MatrixUtils {
   /// method, but it avoids creating infinite values from large finite values
   /// if it can.
   static Rect _safeTransformRect(Matrix4 transform, Rect rect) {
-    final Float64List storage = transform.storage;
+    final Float32List storage = transform.storage;
     final bool isAffine = storage[3] == 0.0 &&
         storage[7] == 0.0 &&
         storage[15] == 1.0;
 
-    _minMax ??= Float64List(4);
+    _minMax ??= Float32List(4);
 
     _accumulate(storage, rect.left,  rect.top,    true,  isAffine);
     _accumulate(storage, rect.right, rect.top,    false, isAffine);
@@ -166,8 +166,8 @@ class MatrixUtils {
     return Rect.fromLTRB(_minMax[0], _minMax[1], _minMax[2], _minMax[3]);
   }
 
-  static Float64List _minMax;
-  static void _accumulate(Float64List m, double x, double y, bool first, bool isAffine) {
+  static Float32List _minMax;
+  static void _accumulate(Float32List m, double x, double y, bool first, bool isAffine) {
     final double w = isAffine ? 1.0 : 1.0 / (m[3] * x + m[7] * y + m[15]);
     final double tx = (m[0] * x + m[4] * y + m[12]) * w;
     final double ty = (m[1] * x + m[5] * y + m[13]) * w;
@@ -197,7 +197,7 @@ class MatrixUtils {
   /// The transformed rect is then projected back into the plane with z equals
   /// 0.0 before computing its bounding rect.
   static Rect transformRect(Matrix4 transform, Rect rect) {
-    final Float64List storage = transform.storage;
+    final Float32List storage = transform.storage;
     final double x = rect.left;
     final double y = rect.top;
     final double w = rect.right - x;

@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:ui' show Offset;
 import 'package:flutter/foundation.dart' show required;
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 import 'arena.dart';
 import 'binding.dart';

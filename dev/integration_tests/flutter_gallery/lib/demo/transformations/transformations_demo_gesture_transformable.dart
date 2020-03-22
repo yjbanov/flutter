@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' show Vector3;
+import 'package:vector_math/vector_math.dart' show Vector3;
 import 'transformations_demo_inertial_motion.dart';
 
 // This widget allows 2D transform interactions on its child in relation to its

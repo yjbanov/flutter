@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' show SemanticsFlag;
 
 import 'package:flutter/foundation.dart';

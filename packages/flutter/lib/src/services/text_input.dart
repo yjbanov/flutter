@@ -14,7 +14,7 @@ import 'dart:ui' show
   hashValues;
 
 import 'package:flutter/foundation.dart';
-import 'package:vector_math/vector_math_64.dart' show Matrix4;
+import 'package:vector_math/vector_math.dart' show Matrix4;
 
 import 'autofill.dart';
 import 'message_codec.dart';

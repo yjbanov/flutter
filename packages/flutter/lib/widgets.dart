@@ -12,7 +12,7 @@
 ///    for a catalog of commonly-used Flutter widgets.
 library widgets;
 
-export 'package:vector_math/vector_math_64.dart' show Matrix4;
+export 'package:vector_math/vector_math.dart' show Matrix4;
 
 export 'src/widgets/actions.dart';
 export 'src/widgets/animated_cross_fade.dart';

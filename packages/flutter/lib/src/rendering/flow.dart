@@ -5,7 +5,7 @@
 import 'dart:ui' as ui show Color;
 
 import 'package:flutter/foundation.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 import 'box.dart';
 import 'object.dart';

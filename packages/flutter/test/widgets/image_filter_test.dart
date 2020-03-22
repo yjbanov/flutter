@@ -26,7 +26,7 @@ void main() {
   });
 
   testWidgets('Image filter - matrix', (WidgetTester tester) async {
-    final ImageFilter matrix = ImageFilter.matrix(Float64List.fromList(<double>[
+    final ImageFilter matrix = ImageFilter.matrix(Float32List.fromList(<double>[
       0.5, 0.0, 0.0, 0.0, //
       0.0, 0.5, 0.0, 0.0, //
       0.0, 0.0, 1.0, 0.0, //

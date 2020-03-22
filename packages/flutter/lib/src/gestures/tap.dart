@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:vector_math/vector_math_64.dart' show Matrix4;
+import 'package:vector_math/vector_math.dart' show Matrix4;
 import 'package:flutter/foundation.dart';
 
 import 'arena.dart';

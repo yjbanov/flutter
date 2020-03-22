@@ -364,7 +364,7 @@ class _FlutterLogoPainter extends BoxPainter {
     canvas.drawPath(bottomBeam, darkPaint);
 
     canvas.save();
-    canvas.transform(Float64List.fromList(const <double>[
+    canvas.transform(Float32List.fromList(const <double>[
       // careful, this is in _column_-major order
       0.7071, -0.7071, 0.0, 0.0,
       0.7071, 0.7071, 0.0, 0.0,

@@ -24,7 +24,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 import 'app.dart';
 import 'basic.dart';
@@ -272,7 +272,7 @@ class _MulticastCanvas implements Canvas {
   }
 
   @override
-  void transform(Float64List matrix4) {
+  void transform(Float32List matrix4) {
     _main.transform(matrix4);
     _screenshot.transform(matrix4);
   }

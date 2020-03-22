@@ -11,7 +11,7 @@ import 'dart:ui' show Offset, Rect, SemanticsAction, SemanticsFlag,
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart' show MatrixUtils, TransformProperty;
 import 'package:flutter/services.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 import 'binding.dart' show SemanticsBinding;
 import 'semantics_event.dart';
@@ -2020,13 +2020,13 @@ class SemanticsNode extends AbstractNode with DiagnosticableTreeMixin {
     );
   }
 
-  static Float64List _initIdentityTransform() {
+  static Float32List _initIdentityTransform() {
     return Matrix4.identity().storage;
   }
 
   static final Int32List _kEmptyChildList = Int32List(0);
   static final Int32List _kEmptyCustomSemanticsActionsList = Int32List(0);
-  static final Float64List _kIdentityTransform = _initIdentityTransform();
+  static final Float32List _kIdentityTransform = _initIdentityTransform();
 
   void _addToUpdate(ui.SemanticsUpdateBuilder builder, Set<int> customSemanticsActionIdsUpdate) {
     assert(_dirty);

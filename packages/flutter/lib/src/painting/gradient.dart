@@ -8,7 +8,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui show Gradient, lerpDouble;
 
 import 'package:flutter/foundation.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 import 'alignment.dart';
 import 'basic_types.dart';
@@ -298,7 +298,7 @@ abstract class Gradient {
     return t < 0.5 ? a.scale(1.0 - (t * 2.0)) : b.scale((t - 0.5) * 2.0);
   }
 
-  Float64List _resolveTransform(Rect bounds, TextDirection textDirection) {
+  Float32List _resolveTransform(Rect bounds, TextDirection textDirection) {
     return transform?.transform(bounds, textDirection: textDirection)?.storage;
   }
 }

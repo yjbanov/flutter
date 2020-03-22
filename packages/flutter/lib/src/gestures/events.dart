@@ -5,7 +5,7 @@
 import 'dart:ui' show Offset, PointerDeviceKind;
 
 import 'package:flutter/foundation.dart';
-import 'package:vector_math/vector_math_64.dart';
+import 'package:vector_math/vector_math.dart';
 
 export 'dart:ui' show Offset, PointerDeviceKind;
 
