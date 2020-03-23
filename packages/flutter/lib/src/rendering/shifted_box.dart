@@ -79,7 +79,7 @@ abstract class RenderShiftedBox extends RenderBox with RenderObjectWithChildMixi
         offset: childParentData.offset,
         position: position,
         hitTest: (BoxHitTestResult result, Offset transformed) {
-          assert(transformed == position - childParentData.offset);
+          assert((transformed - (position - childParentData.offset)).distance < 0.0001);
           return child.hitTest(result, position: transformed);
         },
       );
