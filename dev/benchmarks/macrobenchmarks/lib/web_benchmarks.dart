@@ -311,7 +311,10 @@ class LocalBenchmarkServerClient {
     // 404 is expected in the following cases:
     // - The benchmark is ran using plain `flutter run`, which does not provide "next-benchmark" handler.
     // - We ran all benchmarks and the benchmark is telling us there are no more benchmarks to run.
-    if (request.status == 404) {
+    //
+    // 501 means HTTP POST is not supported, which is expected when benchmarks
+    // are served using a plain file server.
+    if (request.status == 404 || request.status == 501) {
       isInManualMode = true;
       return kManualFallback;
     }
