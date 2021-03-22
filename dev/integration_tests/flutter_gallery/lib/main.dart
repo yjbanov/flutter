@@ -6,7 +6,15 @@
 // Like what you see? Tweet us @FlutterDev
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'gallery/app.dart';
 
-void main() => runApp(const GalleryApp());
+import 'splash_screen.dart';
+
+void main() {
+  runApp(const GalleryApp());
+  SchedulerBinding.instance!.addPostFrameCallback((Duration timeStamp) {
+    removeSplashScreen();
+  });
+}
