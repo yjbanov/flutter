@@ -247,22 +247,33 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
 
   bool _animating = false;
   double _lastVelocity = 0.0;
+  int _animatedPointerScrollCounter = 0;
 
   void _animatedPointerScroll(double delta, double newTargetPixels) {
+    _animatedPointerScrollCounter += 1;
+    final int currentCount = _animatedPointerScrollCounter;
     if (!_animating) {
+      print('>>> start animating ($currentCount)');
       // Initiate a new animation.
       final double duration = physics.getPointerAnimationDurationFor(delta);
       _lastVelocity = delta / duration;
       _animating = true;
-      moveTo(
+      // print('>>> animateTo _animatingPointerScroll $_animating => true');
+      animateTo(
         newTargetPixels,
         duration: Duration(milliseconds: duration.round()),
         curve: Curves.easeInOut,
       ).whenComplete(() {
+        print('>>> animateTo complete ($currentCount)');
+        if (_animatedPointerScrollCounter != currentCount) {
+          return;
+        }
+        // print('>>> whenComplete _animatingPointerScroll $_animating => false');
         _animating = false;
         _lastVelocity = 0.0;
       });
     } else {
+      print('>>> continue animating ($currentCount)');
       // We are already animating.
       // Create a new animation to the new target, incorporating the one already
       // underway.
@@ -273,7 +284,7 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
       // Compute the delta-based duration for the new input
       final double newDuration = physics.getPointerAnimationDurationFor(delta);
       final double newVelocity = delta / newDuration;
-      final double compositedVelocity = newVelocity + _lastVelocity;
+      final double compositedVelocity = newVelocity + (activity?.velocity ?? 0);
       final double updatedDuration = clampDouble(
         delta / compositedVelocity,
         physics.pointerAnimationMinDuration,
@@ -281,11 +292,16 @@ class ScrollPositionWithSingleContext extends ScrollPosition implements ScrollAc
       );
       _lastVelocity = compositedVelocity;
       _animating = true;
-      moveTo(
+      animateTo(
         newTargetPixels,
         duration: Duration(milliseconds: updatedDuration.round()),
         curve: Curves.easeInOut,
       ).whenComplete(() {
+        print('>>> animateTo complete ($currentCount)');
+        // print('>>> _animatedPointerScrollCounter ($_animatedPointerScrollCounter); currentCount ($currentCount)');
+        if (_animatedPointerScrollCounter != currentCount) {
+          return;
+        }
         _animating = false;
         _lastVelocity = 0.0;
       });

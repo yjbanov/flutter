@@ -644,6 +644,7 @@ class _NestedScrollCoordinator implements ScrollActivityDelegate, ScrollHoldCont
   ScrollDragController? _currentDrag;
 
   void beginActivity(ScrollActivity newOuterActivity, _NestedScrollActivityGetter innerActivityGetter) {
+    print('>>> beginActivity');
     _outerPosition!.beginActivity(newOuterActivity);
     bool scrolling = newOuterActivity.isScrolling;
     for (final _NestedScrollPosition position in _innerPositions) {
@@ -900,6 +901,7 @@ class _NestedScrollCoordinator implements ScrollActivityDelegate, ScrollHoldCont
   }
 
   void pointerScroll(double delta, bool animatePointerScroll) {
+    print('>>> pointerScroll');
     // If an update is made to pointer scrolling here, consider if the same
     // (or similar) change should be made in
     // ScrollPositionWithSingleContext.pointerScroll.
@@ -996,12 +998,14 @@ class _NestedScrollCoordinator implements ScrollActivityDelegate, ScrollHoldCont
       // Initiate a new animation.
       final double duration = physics.getPointerAnimationDurationFor(delta);
       _lastPointerScrollVelocity = delta / duration;
+      print('>>> animateTo _animatingPointerScroll $_animatingPointerScroll => true');
       _animatingPointerScroll = true;
       animateTo(
         newTargetPixels,
         duration: Duration(milliseconds: duration.round()),
         curve: Curves.easeInOut,
       ).whenComplete(() {
+        print('>>> whenComplete _animatingPointerScroll $_animatingPointerScroll => false');
         _animatingPointerScroll = false;
         _lastPointerScrollVelocity = 0.0;
       });
@@ -1017,12 +1021,14 @@ class _NestedScrollCoordinator implements ScrollActivityDelegate, ScrollHoldCont
         physics.pointerAnimationMaxDuration,
       );
       _lastPointerScrollVelocity = compositedVelocity;
+      print('>>> animateTo _animatingPointerScroll $_animatingPointerScroll => true');
       _animatingPointerScroll = true;
       animateTo(
         newTargetPixels,
         duration: Duration(milliseconds: updatedDuration.round()),
         curve: Curves.easeInOut,
       ).whenComplete(() {
+        print('>>> whenComplete _animatingPointerScroll $_animatingPointerScroll => false');
         _animatingPointerScroll = false;
         _lastPointerScrollVelocity = 0.0;
       });
