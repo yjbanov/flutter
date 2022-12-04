@@ -287,11 +287,6 @@ typedef ImageErrorWidgetBuilder = Widget Function(
 /// image to the specified size, which is primarily intended to reduce the
 /// memory usage of [ImageCache].
 ///
-/// In the case where a network image is used on the Web platform, the
-/// `cacheWidth` and `cacheHeight` parameters are ignored as the Web engine
-/// delegates image decoding of network images to the Web, which does not support
-/// custom decode sizes.
-///
 /// See also:
 ///
 ///  * [Icon], which shows an image from a font.
@@ -372,13 +367,6 @@ class Image extends StatefulWidget {
   /// will be rendered to the constraints of the layout or [width] and [height]
   /// regardless of these parameters. These parameters are primarily intended
   /// to reduce the memory usage of [ImageCache].
-  ///
-  /// In the case where the network image is on the Web platform, the [cacheWidth]
-  /// and [cacheHeight] parameters are ignored as the web engine delegates
-  /// image decoding to the web which does not support custom decode sizes.
-  //
-  // TODO(garyq): We should eventually support custom decoding of network images
-  // on Web as well, see https://github.com/flutter/flutter/issues/42789.
   Image.network(
     String src, {
     super.key,
@@ -423,6 +411,10 @@ class Image extends StatefulWidget {
   ///
   /// On Android, this may require the
   /// `android.permission.READ_EXTERNAL_STORAGE` permission.
+  ///
+  /// On web, this is not supported because browser does not provide access to
+  /// the file system. Consider using either [Image.asset] or [Image.network]
+  /// instead.
   ///
   /// {@macro flutter.widgets.image.filterQualityParameter}
   ///
