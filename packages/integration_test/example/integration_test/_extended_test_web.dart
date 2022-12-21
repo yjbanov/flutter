@@ -54,8 +54,7 @@ void main() {
   });
 
   testWidgets('verify screenshot', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    app.main();
+    await tester.pumpWidget(app.makeTestGrid());
 
     // Trigger a frame.
     await tester.pumpAndSettle();

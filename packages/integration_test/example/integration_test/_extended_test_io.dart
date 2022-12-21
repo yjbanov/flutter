@@ -39,8 +39,7 @@ void main() {
   });
 
   testWidgets('verify screenshot', (WidgetTester tester) async {
-    // Build our app.
-    app.main();
+    await tester.pumpWidget(app.makeTestGrid());
 
     // On Android, this is required prior to taking the screenshot.
     await binding.convertFlutterSurfaceToImage();
