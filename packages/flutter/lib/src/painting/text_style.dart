@@ -897,7 +897,7 @@ class TextStyle with Diagnosticable {
       decorationThickness: decorationThickness ?? this.decorationThickness,
       debugLabel: newDebugLabel,
       fontFamily: fontFamily ?? _fontFamily,
-      fontFamilyFallback: fontFamilyFallback ?? this.fontFamilyFallback,
+      fontFamilyFallback: fontFamilyFallback ?? this._fontFamilyFallback,
       package: package ?? _package,
       overflow: overflow ?? this.overflow,
     );

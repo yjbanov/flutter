@@ -351,6 +351,13 @@ void main() {
     expect(s2.apply(fontFamilyFallback: const <String>['Banana']).fontFamilyFallback, const <String>['Banana']);
   });
 
+  test('TextStyle.copyWith: font family fallback copied correctly', () {
+    const TextStyle s1 = TextStyle(fontFamilyFallback: <String>['test'], package: 'some_package');
+    expect(s1.fontFamilyFallback, <String>['packages/some_package/test']);
+    final TextStyle s2 = s1.copyWith();
+    expect(s2.fontFamilyFallback, <String>['packages/some_package/test']);
+  });
+
   test('TextStyle.debugLabel', () {
     const TextStyle unknown = TextStyle();
     const TextStyle foo = TextStyle(debugLabel: 'foo', fontSize: 1.0);
