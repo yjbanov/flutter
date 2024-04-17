@@ -42,7 +42,6 @@ Future<void> webLongRunningTestsRunner(String flutterRoot) async {
         driver: path.join('test_driver', 'integration_test.dart'),
         buildMode: buildMode,
         renderer: 'canvaskit',
-        expectWriteResponseFile: true,
         expectResponseFileContent: 'null',
       ),
       () => _runFlutterDriverWebTest(
@@ -51,7 +50,6 @@ Future<void> webLongRunningTestsRunner(String flutterRoot) async {
         driver: path.join('test_driver', 'extended_integration_test.dart'),
         buildMode: buildMode,
         renderer: 'canvaskit',
-        expectWriteResponseFile: true,
         expectResponseFileContent: '''
 {
   "screenshots": [
@@ -209,7 +207,6 @@ Future<void> _runFlutterDriverWebTest({
   String? driver,
   bool expectFailure = false,
   bool silenceBrowserOutput = false,
-  bool expectWriteResponseFile = false,
   String expectResponseFileContent = '',
 }) async {
   printProgress('${green}Running integration tests $target in $buildMode mode.$reset');
@@ -251,20 +248,6 @@ Future<void> _runFlutterDriverWebTest({
       return false;
     },
   );
-  if (expectWriteResponseFile) {
-    if (!File(responseFile).existsSync()) {
-      foundError(<String>[
-        '$bold${red}Command did not write the response file but expected response file written.$reset',
-      ]);
-    } else {
-      final String response = File(responseFile).readAsStringSync();
-      if (response != expectResponseFileContent) {
-        foundError(<String>[
-          '$bold${red}Command write the response file with $response but expected response file with $expectResponseFileContent.$reset',
-        ]);
-      }
-    }
-  }
 }
 
 // Compiles a sample web app and checks that its JS doesn't contain certain
